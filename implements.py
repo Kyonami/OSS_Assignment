@@ -34,9 +34,8 @@ class Block(Basic):
         pygame.draw.rect(surface, self.color, self.rect)
     
     def collide(self):
-        # ============================================
-        # TODO: Implement an event when block collides with a ball
-        pass
+        self.alive = False
+        self.rect = Rect(0, 0, 0, 0) # 사이즈와 좌표를 0으로 만들어서 블록이 보이지 않도록 만듦
 
 
 class Paddle(Basic):
