@@ -90,6 +90,4 @@ class Ball(Basic):
             self.dir = 360 - self.dir;
     
     def alive(self):
-        # ============================================
-        # TODO: Implement a service that returns whether the ball is alive or not
-        pass
+        return self.rect.bottom < config.display_dimension[1]   # 공 아랫부분 < 화면 아랫부분
