@@ -65,9 +65,17 @@ class Ball(Basic):
         pygame.draw.ellipse(surface, self.color, self.rect)
 
     def collide_block(self, blocks: list):
-        # ============================================
-        # TODO: Implement an event when the ball hits a block
-        pass
+        for block in blocks :
+            if block.alive and self.rect.colliderect(block.rect):
+                # 충돌 시 어떤 축으로 더 많이 겹치는지 비교해서 수직/수평 충돌 판별
+                overlap_x = min(self.rect.right, block.rect.right) - max(self.rect.left, block.rect.left)
+                overlap_y = min(self.rect.bottom, block.rect.bottom) - max(self.rect.top, block.rect.top)
+                if (overlap_x < overlap_y):
+                    self.dir = 180 - self.dir   # 수직 반사
+                else:
+                    self.dir = 360 - self.dir   # 수평 반사
+
+                block.collide() # 충돌 처리
 
     def collide_paddle(self, paddle: Paddle) -> None:
         if self.rect.colliderect(paddle.rect):
