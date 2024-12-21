@@ -25,17 +25,23 @@ class Basic:
 
 
 class Block(Basic):
-    def __init__(self, color: tuple, pos: tuple = (0,0), alive = True):
+    def __init__(self, color: tuple, pos: tuple = (0, 0), alive=True):
         super().__init__(color, 0, pos, config.block_size)
         self.pos = pos
         self.alive = alive
 
     def draw(self, surface) -> None:
         pygame.draw.rect(surface, self.color, self.rect)
-    
-    def collide(self):
+
+    def collide(self, items):
         self.alive = False
-        self.rect = Rect(0, 0, 0, 0) # 사이즈와 좌표를 0으로 만들어서 블록이 보이지 않도록 만듦
+        self.rect = Rect(0, 0, 0, 0)  
+        
+        if random.random() < 0.2:  
+            item_color = random.choice([(255, 0, 0), (0, 0, 255)])  
+            items.append(Item(item_color, self.pos))
+
+
 
 
 class Paddle(Basic):
@@ -64,30 +70,36 @@ class Ball(Basic):
     def draw(self, surface):
         pygame.draw.ellipse(surface, self.color, self.rect)
 
-    def collide_block(self, blocks: list):
-        for block in blocks :
+    def collide_block(self, blocks: list, items: list):
+        for block in blocks:
             if block.alive and self.rect.colliderect(block.rect):
-                # 충돌 시 어떤 축으로 더 많이 겹치는지 비교해서 수직/수평 충돌 판별
+           
                 overlap_x = min(self.rect.right, block.rect.right) - max(self.rect.left, block.rect.left)
                 overlap_y = min(self.rect.bottom, block.rect.bottom) - max(self.rect.top, block.rect.top)
-                if (overlap_x < overlap_y):
-                    self.dir = 180 - self.dir   # 수직 반사
-                else:
-                    self.dir = 360 - self.dir   # 수평 반사
+                if overlap_x < overlap_y:
+                    self.dir = 180 - self.dir   
+                    self.dir = 360 - self.dir   
 
-                block.collide() # 충돌 처리
+                block.collide(items)  
 
     def collide_paddle(self, paddle: Paddle) -> None:
         if self.rect.colliderect(paddle.rect):
             self.dir = 360 - self.dir + random.randint(-5, 5)
 
     def hit_wall(self):
-        # 좌우 벽 충돌
+        
         if self.rect.left <= 0 or config.display_dimension[0] <= self.rect.right:
-            self.dir = 180 - self.dir;
-        # 상단 벽 충돌
+            self.dir = 180 - self.dir
+        
         if self.rect.top <= 0:
-            self.dir = 360 - self.dir;
+            self.dir = 360 - self.dir
     
     def alive(self):
-        return self.rect.bottom < config.display_dimension[1]   # 공 아랫부분 < 화면 아랫부분
+        return self.rect.bottom < config.display_dimension[1]   
+
+class Item(Basic): 
+    def __init__(self, color: tuple, pos: tuple):
+        super().__init__(color, config.ball_speed / 2, pos, config.item_size)
+
+    def draw(self, surface):
+        pygame.draw.ellipse(surface, self.color, self.rect)
