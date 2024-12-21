@@ -35,10 +35,10 @@ class Block(Basic):
 
     def collide(self, items):
         self.alive = False
-        self.rect = Rect(0, 0, 0, 0)  # 블록이 사라지도록 설정
-        # 아이템 생성 확률
-        if random.random() < 0.2:  # 20% 확률로 아이템 생성
-            item_color = random.choice([(255, 0, 0), (0, 0, 255)])  # 빨간색, 파란색
+        self.rect = Rect(0, 0, 0, 0)  
+        
+        if random.random() < 0.2:  
+            item_color = random.choice([(255, 0, 0), (0, 0, 255)])  
             items.append(Item(item_color, self.pos))
 
 
@@ -73,33 +73,31 @@ class Ball(Basic):
     def collide_block(self, blocks: list, items: list):
         for block in blocks:
             if block.alive and self.rect.colliderect(block.rect):
-            # 충돌 시 어떤 축으로 더 많이 겹치는지 비교해서 수직/수평 충돌 판별
+           
                 overlap_x = min(self.rect.right, block.rect.right) - max(self.rect.left, block.rect.left)
                 overlap_y = min(self.rect.bottom, block.rect.bottom) - max(self.rect.top, block.rect.top)
                 if overlap_x < overlap_y:
-                    self.dir = 180 - self.dir   # 수직 반사
-                else:
-                    self.dir = 360 - self.dir   # 수평 반사
+                    self.dir = 180 - self.dir   
+                    self.dir = 360 - self.dir   
 
-                block.collide(items)  # 아이템 리스트 전달
-
+                block.collide(items)  
 
     def collide_paddle(self, paddle: Paddle) -> None:
         if self.rect.colliderect(paddle.rect):
             self.dir = 360 - self.dir + random.randint(-5, 5)
 
     def hit_wall(self):
-        # 좌우 벽 충돌
+        
         if self.rect.left <= 0 or config.display_dimension[0] <= self.rect.right:
             self.dir = 180 - self.dir
-        # 상단 벽 충돌
+        
         if self.rect.top <= 0:
             self.dir = 360 - self.dir
     
     def alive(self):
-        return self.rect.bottom < config.display_dimension[1]   # 공 아랫부분 < 화면 아랫부분
+        return self.rect.bottom < config.display_dimension[1]   
 
-class Item(Basic): #추가
+class Item(Basic): 
     def __init__(self, color: tuple, pos: tuple):
         super().__init__(color, config.ball_speed / 2, pos, config.item_size)
 

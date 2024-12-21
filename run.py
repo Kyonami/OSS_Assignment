@@ -58,7 +58,7 @@ def tick():
             ball.rect.centerx = paddle.rect.centerx
             ball.rect.bottom = paddle.rect.top
 
-        ball.collide_block(BLOCKS, ITEMS)  # ITEMS 전달
+        ball.collide_block(BLOCKS, ITEMS)  
         ball.collide_paddle(paddle)
         ball.hit_wall()
         if not ball.alive():
@@ -67,9 +67,13 @@ def tick():
     for item in ITEMS:
         item.move()
         if item.rect.colliderect(paddle.rect):
-            ITEMS.remove(item)  # 아이템이 패들과 충돌하면 제거
+            if item.color == (255, 0, 0):  
+                new_ball = Ball((paddle.rect.centerx, paddle.rect.top - config.ball_size[1]))
+                BALLS.append(new_ball)
+            ITEMS.remove(item) 
         elif item.rect.top > config.display_dimension[1]:
-            ITEMS.remove(item)  # 아이템이 화면 밖으로 나가면 제거
+            ITEMS.remove(item)  
+
 
 
 
@@ -84,28 +88,28 @@ def main():
     global ball1
     global start
 
-    # 폰트 설정
+    
     my_font = pygame.font.SysFont(None, 50)
     mess_clear = my_font.render("Cleared!", True, config.colors[2])
     mess_over = my_font.render("Game Over!", True, config.colors[2])
 
-    # 블록 생성
+  
     create_blocks()
 
     while True:
-        tick()  # 게임 상태 업데이트
+        tick()  
 
-        # 화면 초기화
+        
         surface.fill((0, 0, 0))
 
-        # Paddle 그리기
+        
         paddle.draw(surface)
 
-        # 블록 그리기
+       
         for block in BLOCKS:
             block.draw(surface)
 
-        # 현재 점수와 목숨 표시
+        
         cur_score = config.num_blocks[0] * config.num_blocks[1] - len(BLOCKS)
         score_txt = my_font.render(f"Score : {cur_score * 10}", True, config.colors[2])
         life_font = my_font.render(f"Life: {life}", True, config.colors[0])
@@ -113,11 +117,11 @@ def main():
         surface.blit(score_txt, config.score_pos)
         surface.blit(life_font, config.life_pos)
 
-        # 아이템 그리기
+        
         for item in ITEMS:
             item.draw(surface)
 
-        # Ball 상태 확인
+        
         if len(BALLS) == 0:
             if life > 1:
                 life -= 1
@@ -126,16 +130,16 @@ def main():
                 start = False
             else:
                 surface.blit(mess_over, (200, 300))
-        elif all(block.alive == False for block in BLOCKS):  # 모든 블록이 사라짐
+        elif all(block.alive == False for block in BLOCKS):  
             surface.blit(mess_clear, (200, 400))
         else:
-            # Ball 그리기
+            
             for ball in BALLS:
                 if start:
                     ball.move()
                 ball.draw(surface)
 
-        # 화면 업데이트 및 FPS 설정
+        
         pygame.display.update()
         fps_clock.tick(config.fps)
 
