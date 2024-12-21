@@ -20,7 +20,6 @@ BALLS = [ball1]
 life = config.life
 start = False
 
-
 def create_blocks():
     for i in range(config.num_blocks[0]):
         for j in range(config.num_blocks[1]):
@@ -34,7 +33,6 @@ def create_blocks():
             color = config.colors[color_index]
             block = Block(color, (x, y))
             BLOCKS.append(block)
-
 
 def tick():
     global life, BLOCKS, ITEMS, BALLS, paddle, ball1, start
@@ -74,11 +72,6 @@ def tick():
         elif item.rect.top > config.display_dimension[1]:
             ITEMS.remove(item)  
 
-
-
-
-
-
 def main():
     global life
     global BLOCKS
@@ -88,36 +81,26 @@ def main():
     global ball1
     global start
 
-    
     my_font = pygame.font.SysFont(None, 50)
     mess_clear = my_font.render("Cleared!", True, config.colors[2])
     mess_over = my_font.render("Game Over!", True, config.colors[2])
 
-  
     create_blocks()
 
     while True:
         tick()  
-
-        
         surface.fill((0, 0, 0))
-
-        
         paddle.draw(surface)
 
-       
         for block in BLOCKS:
             block.draw(surface)
 
-        
         cur_score = config.num_blocks[0] * config.num_blocks[1] - len(BLOCKS)
         score_txt = my_font.render(f"Score : {cur_score * 10}", True, config.colors[2])
         life_font = my_font.render(f"Life: {life}", True, config.colors[0])
-
         surface.blit(score_txt, config.score_pos)
         surface.blit(life_font, config.life_pos)
 
-        
         for item in ITEMS:
             item.draw(surface)
 

@@ -41,9 +41,6 @@ class Block(Basic):
             item_color = random.choice([(255, 0, 0), (0, 0, 255)])  
             items.append(Item(item_color, self.pos))
 
-
-
-
 class Paddle(Basic):
     def __init__(self):
         super().__init__(config.paddle_color, 0, config.paddle_pos, config.paddle_size)
@@ -73,13 +70,12 @@ class Ball(Basic):
     def collide_block(self, blocks: list, items: list):
         for block in blocks:
             if block.alive and self.rect.colliderect(block.rect):
-           
                 overlap_x = min(self.rect.right, block.rect.right) - max(self.rect.left, block.rect.left)
                 overlap_y = min(self.rect.bottom, block.rect.bottom) - max(self.rect.top, block.rect.top)
                 if overlap_x < overlap_y:
                     self.dir = 180 - self.dir   
+                else:
                     self.dir = 360 - self.dir   
-
                 block.collide(items)  
 
     def collide_paddle(self, paddle: Paddle) -> None:
@@ -87,7 +83,6 @@ class Ball(Basic):
             self.dir = 360 - self.dir + random.randint(-5, 5)
 
     def hit_wall(self):
-        
         if self.rect.left <= 0 or config.display_dimension[0] <= self.rect.right:
             self.dir = 180 - self.dir
         
