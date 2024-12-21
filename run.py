@@ -37,22 +37,17 @@ def create_blocks():
 
 
 def tick():
-    global life
-    global BLOCKS
-    global ITEMS
-    global BALLS
-    global paddle
-    global ball1
-    global start
+    global life, BLOCKS, ITEMS, BALLS, paddle, ball1, start
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
         elif event.type == pygame.KEYDOWN:
-            if event.key == K_ESCAPE:  # ESC 키가 눌렸을 때
+            if event.key == K_ESCAPE:
                 pygame.quit()
                 sys.exit()
-            if event.key == K_SPACE:  # space키가 눌려지만 start 변수가 True로 바뀌며 게임 시작
+            if event.key == K_SPACE:
                 start = True
             paddle.move_paddle(event)
 
@@ -63,11 +58,21 @@ def tick():
             ball.rect.centerx = paddle.rect.centerx
             ball.rect.bottom = paddle.rect.top
 
-        ball.collide_block(BLOCKS)
+        ball.collide_block(BLOCKS, ITEMS)  # ITEMS 전달
         ball.collide_paddle(paddle)
         ball.hit_wall()
-        if ball.alive() == False:
+        if not ball.alive():
             BALLS.remove(ball)
+
+    for item in ITEMS:
+        item.move()
+        if item.rect.colliderect(paddle.rect):
+            ITEMS.remove(item)  # 아이템이 패들과 충돌하면 제거
+        elif item.rect.top > config.display_dimension[1]:
+            ITEMS.remove(item)  # 아이템이 화면 밖으로 나가면 제거
+
+
+
 
 
 def main():
@@ -78,27 +83,41 @@ def main():
     global paddle
     global ball1
     global start
+
+    # 폰트 설정
     my_font = pygame.font.SysFont(None, 50)
     mess_clear = my_font.render("Cleared!", True, config.colors[2])
     mess_over = my_font.render("Game Over!", True, config.colors[2])
+
+    # 블록 생성
     create_blocks()
 
     while True:
-        tick()
+        tick()  # 게임 상태 업데이트
+
+        # 화면 초기화
         surface.fill((0, 0, 0))
+
+        # Paddle 그리기
         paddle.draw(surface)
 
+        # 블록 그리기
         for block in BLOCKS:
             block.draw(surface)
 
+        # 현재 점수와 목숨 표시
         cur_score = config.num_blocks[0] * config.num_blocks[1] - len(BLOCKS)
-
         score_txt = my_font.render(f"Score : {cur_score * 10}", True, config.colors[2])
         life_font = my_font.render(f"Life: {life}", True, config.colors[0])
 
         surface.blit(score_txt, config.score_pos)
         surface.blit(life_font, config.life_pos)
 
+        # 아이템 그리기
+        for item in ITEMS:
+            item.draw(surface)
+
+        # Ball 상태 확인
         if len(BALLS) == 0:
             if life > 1:
                 life -= 1
@@ -107,18 +126,19 @@ def main():
                 start = False
             else:
                 surface.blit(mess_over, (200, 300))
-        elif all(block.alive == False for block in BLOCKS):
+        elif all(block.alive == False for block in BLOCKS):  # 모든 블록이 사라짐
             surface.blit(mess_clear, (200, 400))
         else:
+            # Ball 그리기
             for ball in BALLS:
-                if start == True:
+                if start:
                     ball.move()
                 ball.draw(surface)
-            for block in BLOCKS:
-                block.draw(surface)
 
+        # 화면 업데이트 및 FPS 설정
         pygame.display.update()
         fps_clock.tick(config.fps)
+
 
 
 if __name__ == "__main__":
